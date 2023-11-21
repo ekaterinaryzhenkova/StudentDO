@@ -1,56 +1,91 @@
-﻿using DbModels;
-using Provider;
+﻿using Commands.Interfaces;
+using DbModels;
+using Data.Interfaces;
+using Requests.Request;
+using Data.Mappers;
+using Data.Validators;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
 
-namespace CLient
+namespace Commands
 {
-    public class ClientCommand
+    public class ClientCommand : IClientCommand
     {
-        ClientRepository _clientRepository = new();
+        private readonly IClientRepository _clientRepository;
+        private readonly IClientMapper _clientMapper;
+        private readonly IClientRequestValidator _createClientRequestValidator;
 
-        public void AddClient(string name, string phoneNumber)
+        public ClientCommand(
+            IClientRepository clientRepository,
+            IClientMapper clientMapper,
+            IClientRequestValidator createClientRequestValidator)
         {
-            var Client = new DbClient
-            {
-                Id = Guid.NewGuid(),
-                Name = name,
-                PhoneNumber = phoneNumber,
-            };
-
-            _clientRepository.CreateClient(Client);
+            _clientRepository = clientRepository;
+            _clientMapper = clientMapper;
+            _createClientRequestValidator = createClientRequestValidator;
         }
 
-        public void RemoveClient(Guid id)
+        public IActionResult CreateClient(ClientRequest request)
+        {
+            ValidationResult validationResult = _createClientRequestValidator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                return new BadRequestObjectResult(validationResult.Errors);
+            }
+
+            DbClient client = _clientMapper.Map(request);
+            _clientRepository.CreateClient(client);
+
+            return new OkObjectResult(client.Id);
+        }
+
+        public IActionResult DeleteClient(Guid id)
         {
             _clientRepository.DeleteClient(id);
+
+            return new OkObjectResult(true);
         }
 
-        public string GetClient(Guid id)
+        public IActionResult GetClient(Guid id)
         {
-            DbClient dbClient = _clientRepository.GetClient(id);
+            DbClient? dbClient = _clientRepository.GetClient(id);
 
-            string strClient = $"{dbClient.Id} - {dbClient.Name} - {dbClient.PhoneNumber}";
+            if (dbClient is null)
+            {
+                return new NotFoundResult();
+            }
 
-            Console.WriteLine(strClient);
-
-            return strClient;
+            return new OkObjectResult(dbClient);
         }
 
-        public void GetClients()
+        public IActionResult GetClients()
         {
-            List<string> _strClients = new();
-
             List<DbClient> _clients = _clientRepository.GetClients();
 
-            foreach (DbClient client in _clients)
-            {
-                Console.WriteLine($"{client.Id} - {client.Name} - {client.PhoneNumber}");
-                _strClients.Add($"{client.Id} - {client.Name} - {client.PhoneNumber}");
-            }
+            return new OkObjectResult(_clients);
         }
 
-        public void UpdateClient(Guid id, string name, string phoneNumber)
+        public IActionResult UpdateClient(ClientRequest request, Guid id)
         {
-            _clientRepository.EditClient(id, name, phoneNumber);
+            DbClient? dbClient = _clientRepository.GetClient(id);
+
+            if (dbClient is null)
+            {
+                return new NotFoundResult();
+            }
+
+            ValidationResult validationResult = _createClientRequestValidator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                return new BadRequestObjectResult(validationResult.Errors);
+            }
+
+            DbClient client = _clientMapper.Map(request, id);
+            _clientRepository.EditClient(client);
+
+            return new OkResult();
         }
     }
 }

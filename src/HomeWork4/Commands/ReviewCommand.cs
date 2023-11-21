@@ -1,5 +1,5 @@
-﻿using DbModels;
-using Provider;
+﻿using Data.Repositories;
+using DbModels;
 
 namespace CLient
 {

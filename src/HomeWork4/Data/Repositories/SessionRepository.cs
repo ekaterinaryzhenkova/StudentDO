@@ -1,7 +1,8 @@
 ﻿using DbModels;
 using Microsoft.EntityFrameworkCore;
+using Provider;
 
-namespace Provider
+namespace Data.Repositories
 {
     public class SessionRepository
     {

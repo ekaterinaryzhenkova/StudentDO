@@ -1,9 +1,11 @@
 ﻿using DbModels;
 using Microsoft.EntityFrameworkCore;
+using Data.Interfaces;
+using Provider;
 
-namespace Provider
+namespace Data.Repositories
 {
-    public class ClientRepository
+    public class ClientRepository : IClientRepository
     {
         private readonly HomeWork4DbContext _dbContext = new();
 
@@ -27,21 +29,21 @@ namespace Provider
             _dbContext.SaveChanges();
         }
 
-        public void EditClient(Guid clientId, string name, string phoneNumber)
+        public void EditClient(DbClient client)
         {
-            var client = _dbContext.Clients.FirstOrDefault(u => u.Id == clientId);
+            var _client = _dbContext.Clients.FirstOrDefault(u => u.Id == client.Id);
 
-            client.Name = name;
-            client.PhoneNumber = phoneNumber;
+            _client.Name = client.Name;
+            _client.PhoneNumber = client.PhoneNumber;
 
             _dbContext.SaveChanges();
         }
 
         public void DeleteClient(Guid clientId)
         {
-            var client = _dbContext.Clients.FirstOrDefault(u => u.Id == clientId);
+            var _client = _dbContext.Clients.FirstOrDefault(u => u.Id == clientId);
 
-            _dbContext.Remove(client);
+            _dbContext.Remove(_client);
 
             _dbContext.SaveChanges();
         }

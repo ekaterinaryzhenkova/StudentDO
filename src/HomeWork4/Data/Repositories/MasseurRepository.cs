@@ -1,9 +1,11 @@
-﻿using DbModels;
+﻿using Data.Interfaces;
+using DbModels;
 using Microsoft.EntityFrameworkCore;
+using Provider;
 
-namespace Provider
+namespace Data.Repositories
 {
-    public class MasseurRepository
+    public class MasseurRepository : IMasseurRepository
     {
         private readonly HomeWork4DbContext _dbContext = new();
 
@@ -27,11 +29,12 @@ namespace Provider
             _dbContext.SaveChanges();
         }
 
-        public void EditMasseur(Guid masseurId, string name)
+        public void EditMasseur(DbMasseur masseur)
         {
-            var masseur = _dbContext.Masseurs.FirstOrDefault(u => u.Id == masseurId);
+            var _masseur = _dbContext.Masseurs.FirstOrDefault(u => u.Id == masseur.Id);
 
-            masseur.Name = name;
+            _masseur.Name = masseur.Name;
+            _masseur.Specialization = masseur.Specialization;
 
             _dbContext.SaveChanges();
         }

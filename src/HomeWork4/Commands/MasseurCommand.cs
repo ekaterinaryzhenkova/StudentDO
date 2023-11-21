@@ -1,59 +1,91 @@
-﻿using DbModels;
-using Provider;
-using System.Globalization;
+﻿using Commands.Interfaces;
+using Data.Interfaces;
+using Data.Mappers;
+using Data.Validators;
+using DbModels;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
+using Requests.Request;
 
 namespace CLient
 {
-    public class MasseurCommand
+    public class MasseurCommand : IMasseurCommand
     {
-        MasseurRepository _masseurRepository = new();
+        private readonly IMasseurRepository _masseurRepository;
+        private readonly IMasseurMapper _masseurMapper;
+        private readonly IMasseurRequestValidator _createMasseurRequestValidator;
 
-        public void AddMasseur(string name, string typeMassage)
+        public MasseurCommand(
+            IMasseurRepository masseurRepository,
+            IMasseurMapper masseurMapper,
+            IMasseurRequestValidator createMasseurRequestValidator)
         {
-            var Masseur = new DbMasseur
-            {
-                Id = Guid.NewGuid(),
-                Name = name,
-                Specialization = typeMassage,
-            };
-
-            _masseurRepository.CreateMasseur(Masseur);
+            _masseurRepository = masseurRepository;
+            _masseurMapper = masseurMapper;
+            _createMasseurRequestValidator = createMasseurRequestValidator;
         }
 
-        public void RemoveMasseur(Guid id)
+        public IActionResult CreateMasseur(MasseurRequest request)
+        {
+             ValidationResult validationResult = _createMasseurRequestValidator.Validate(request);
+
+             if (!validationResult.IsValid)
+             {
+                 return new BadRequestObjectResult(validationResult.Errors);
+             }
+
+            DbMasseur masseur = _masseurMapper.Map(request);
+            _masseurRepository.CreateMasseur(masseur);
+
+            return new OkObjectResult(masseur.Id);
+        }
+
+        public IActionResult DeleteMasseur(Guid id)
         {
             _masseurRepository.DeleteMasseur(id);
+
+            return new OkObjectResult(true);
         }
 
-        public string GetMasseur(Guid id)
+        public IActionResult GetMasseur(Guid id)
         {
-            DbMasseur dbMasseur = _masseurRepository.GetMasseur(id);
+            DbMasseur? dbMasseur = _masseurRepository.GetMasseur(id);
 
-            string strMasseur = $"{dbMasseur.Id} - {dbMasseur.Name} - {dbMasseur.Specialization}";
-
-            Console.WriteLine(strMasseur);
-
-            return strMasseur;
-        }
-
-        public List<string> GetMasseurs()
-        {
-            List<string> _strMasseurs = new();
-
-            List<DbMasseur> _masseurs = _masseurRepository.GetMasseurs();
-
-            foreach (DbMasseur masseur in _masseurs)
+            if (dbMasseur is null)
             {
-                Console.WriteLine($"{masseur.Id} - {masseur.Name} - {masseur.Specialization}");
-                _strMasseurs.Add($"{masseur.Id} - {masseur.Name} - {masseur.Specialization}");
+                return new NotFoundResult();
             }
 
-            return _strMasseurs;
+            return new OkObjectResult(dbMasseur);
         }
 
-        public void UpdateMasseur(Guid id, string name)
+        public IActionResult GetMasseurs()
         {
-            _masseurRepository.EditMasseur(id, name);
+            List<DbMasseur> _masseurs = _masseurRepository.GetMasseurs();
+
+            return new OkObjectResult(_masseurs);
+        }
+
+        public IActionResult UpdateMasseur(MasseurRequest request, Guid id)
+        {
+            DbMasseur? dbMasseur = _masseurRepository.GetMasseur(id);
+
+            if (dbMasseur is null)
+            {
+                return new NotFoundResult();
+            }
+
+            ValidationResult validationResult = _createMasseurRequestValidator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                return new BadRequestObjectResult(validationResult.Errors);
+            }
+
+            DbMasseur masseur = _masseurMapper.Map(request, id);
+            _masseurRepository.EditMasseur(masseur);
+
+            return new OkResult();
         }
     }
 }
