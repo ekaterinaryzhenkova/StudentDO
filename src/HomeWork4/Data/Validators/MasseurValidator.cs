@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Data.Validators.Interfaces;
+using FluentValidation;
 using Requests.Request;
 using System.Text.RegularExpressions;
 
@@ -12,11 +13,11 @@ namespace Data.Validators
         {
             RuleFor(m => m.Name)
                 .NotEmpty().WithMessage("Name cannot be empty.")
-                .Must(x => NameRegex.IsMatch(x));
+                .Must(x => !NameRegex.IsMatch(x));
 
             RuleFor(m => m.Specialization)
                 .NotEmpty().WithMessage("Specialization cannot be empty.")
-                .Must(m => m.Length <= 50);
+                .MaximumLength(70).WithMessage("Specialization is too long.");
         }
     }
 }

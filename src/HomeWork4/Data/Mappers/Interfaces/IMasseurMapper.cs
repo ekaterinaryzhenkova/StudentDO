@@ -1,7 +1,7 @@
 ﻿using DbModels;
 using Requests.Request;
 
-namespace Data.Mappers
+namespace Data.Mappers.Interfaces
 {
     public interface IMasseurMapper
     {

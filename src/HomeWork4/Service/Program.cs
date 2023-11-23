@@ -1,10 +1,12 @@
 using CLient;
 using Commands;
 using Commands.Interfaces;
-using Data.Interfaces;
 using Data.Mappers;
+using Data.Mappers.Interfaces;
 using Data.Repositories;
+using Data.Repositories.Interfaces;
 using Data.Validators;
+using Data.Validators.Interfaces;
 
 namespace Service
 {
@@ -27,6 +29,16 @@ namespace Service
             builder.Services.AddTransient<IMasseurCommand, MasseurCommand>();
             builder.Services.AddTransient<IMasseurMapper, MasseurMapper>();
             builder.Services.AddTransient<IMasseurRequestValidator, MasseurValidator>();
+
+            builder.Services.AddTransient<ISessionRepository, SessionRepository>();
+            builder.Services.AddTransient<ISessionCommand, SessionCommand>();
+            builder.Services.AddTransient<ISessionMapper, SessionMapper>();
+            builder.Services.AddTransient<ISessionRequestValidator, SessionValidator>();
+
+            builder.Services.AddTransient<IReviewRepository, ReviewRepository>();
+            builder.Services.AddTransient<IReviewCommand, ReviewCommand>();
+            builder.Services.AddTransient<IReviewMapper, ReviewMapper>();
+            builder.Services.AddTransient<IReviewRequestValidator, ReviewValidator>();
 
             var app = builder.Build();
 

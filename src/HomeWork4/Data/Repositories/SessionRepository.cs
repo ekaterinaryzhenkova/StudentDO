@@ -1,10 +1,11 @@
-﻿using DbModels;
+﻿using Data.Repositories.Interfaces;
+using DbModels;
 using Microsoft.EntityFrameworkCore;
 using Provider;
 
 namespace Data.Repositories
 {
-    public class SessionRepository
+    public class SessionRepository : ISessionRepository
     {
         private readonly HomeWork4DbContext _dbContext = new();
 
@@ -28,12 +29,14 @@ namespace Data.Repositories
             _dbContext.SaveChanges();
         }
 
-        public void EditSession(Guid sessionId, DateTime dateTime, string massageType)
+        public void EditSession(DbSession session)
         {
-            var session = _dbContext.Sessions.FirstOrDefault(u => u.Id == sessionId);
+            var _session = _dbContext.Sessions.FirstOrDefault(u => u.Id == session.Id);
 
-            session.DateTime = dateTime;
-            session.TypeOfMassage = massageType;
+            _session.ClientId = session.ClientId;
+            _session.MasseurId = session.MasseurId;
+            _session.DateTime = session.DateTime;
+            _session.TypeOfMassage = session.TypeOfMassage;
 
             _dbContext.SaveChanges();
         }

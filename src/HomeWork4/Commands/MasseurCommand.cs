@@ -1,6 +1,6 @@
 ﻿using Commands.Interfaces;
-using Data.Interfaces;
-using Data.Mappers;
+using Data.Mappers.Interfaces;
+using Data.Repositories.Interfaces;
 using Data.Validators;
 using DbModels;
 using FluentValidation.Results;
@@ -13,21 +13,21 @@ namespace CLient
     {
         private readonly IMasseurRepository _masseurRepository;
         private readonly IMasseurMapper _masseurMapper;
-        private readonly IMasseurRequestValidator _createMasseurRequestValidator;
+        private readonly IMasseurRequestValidator _masseurRequestValidator;
 
         public MasseurCommand(
             IMasseurRepository masseurRepository,
             IMasseurMapper masseurMapper,
-            IMasseurRequestValidator createMasseurRequestValidator)
+            IMasseurRequestValidator masseurRequestValidator)
         {
             _masseurRepository = masseurRepository;
             _masseurMapper = masseurMapper;
-            _createMasseurRequestValidator = createMasseurRequestValidator;
+            _masseurRequestValidator = masseurRequestValidator;
         }
 
         public IActionResult CreateMasseur(MasseurRequest request)
         {
-             ValidationResult validationResult = _createMasseurRequestValidator.Validate(request);
+             ValidationResult validationResult = _masseurRequestValidator.Validate(request);
 
              if (!validationResult.IsValid)
              {
@@ -44,7 +44,7 @@ namespace CLient
         {
             _masseurRepository.DeleteMasseur(id);
 
-            return new OkObjectResult(true);
+            return new OkResult();
         }
 
         public IActionResult GetMasseur(Guid id)
@@ -61,7 +61,12 @@ namespace CLient
 
         public IActionResult GetMasseurs()
         {
-            List<DbMasseur> _masseurs = _masseurRepository.GetMasseurs();
+            List<DbMasseur>? _masseurs = _masseurRepository.GetMasseurs();
+
+            if (_masseurs is null)
+            {
+                return new NotFoundResult();
+            }
 
             return new OkObjectResult(_masseurs);
         }
@@ -75,7 +80,7 @@ namespace CLient
                 return new NotFoundResult();
             }
 
-            ValidationResult validationResult = _createMasseurRequestValidator.Validate(request);
+            ValidationResult validationResult = _masseurRequestValidator.Validate(request);
 
             if (!validationResult.IsValid)
             {

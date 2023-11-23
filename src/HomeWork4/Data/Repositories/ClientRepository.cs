@@ -1,7 +1,7 @@
 ﻿using DbModels;
 using Microsoft.EntityFrameworkCore;
-using Data.Interfaces;
 using Provider;
+using Data.Repositories.Interfaces;
 
 namespace Data.Repositories
 {

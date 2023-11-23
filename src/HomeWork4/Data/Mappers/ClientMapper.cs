@@ -1,4 +1,5 @@
-﻿using DbModels;
+﻿using Data.Mappers.Interfaces;
+using DbModels;
 using Requests.Request;
 
 namespace Data.Mappers

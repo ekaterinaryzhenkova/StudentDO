@@ -6,48 +6,48 @@ namespace Service.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ClientController : ControllerBase
+    public class ReviewController : Controller
     {
-        private readonly IClientCommand _clientCommand;
+        private readonly IReviewCommand _reviewCommand;
 
-        public ClientController(IClientCommand command)
+        public ReviewController(IReviewCommand command)
         {
-            _clientCommand = command;
+            _reviewCommand = command;
         }
 
         [HttpPost]
         public IActionResult Create(
-        [FromBody] ClientRequest request)
+        [FromBody] ReviewRequest request)
         {
-            return _clientCommand.CreateClient(request);
+            return _reviewCommand.CreateReview(request);
         }
 
         [HttpGet]
         public IActionResult Get(
         [FromQuery] Guid id)
         {
-            return _clientCommand.GetClient(id);
+            return _reviewCommand.GetReview(id);
         }
 
         [HttpGet("all")]
         public IActionResult GetAll()
         {
-            return _clientCommand.GetClients();
+            return _reviewCommand.GetReviews();
         }
 
         [HttpDelete]
         public IActionResult Delete(
         [FromQuery] Guid id)
         {
-            return _clientCommand.DeleteClient(id);
+            return _reviewCommand.DeleteReview(id);
         }
 
         [HttpPut]
         public IActionResult Update(
         [FromQuery] Guid id,
-        [FromBody] ClientRequest request)
+        [FromBody] ReviewRequest request)
         {
-           return _clientCommand.UpdateClient(request, id);
+            return _reviewCommand.UpdateReview(request, id);
         }
     }
 }

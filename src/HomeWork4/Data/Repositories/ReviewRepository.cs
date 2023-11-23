@@ -1,10 +1,11 @@
-﻿using DbModels;
+﻿using Data.Repositories.Interfaces;
+using DbModels;
 using Microsoft.EntityFrameworkCore;
 using Provider;
 
 namespace Data.Repositories
 {
-    public class ReviewRepository
+    public class ReviewRepository : IReviewRepository
     {
         private readonly HomeWork4DbContext _dbContext = new();
 
@@ -28,12 +29,12 @@ namespace Data.Repositories
             _dbContext.SaveChanges();
         }
 
-        public void EditReview(Guid reviewId, int mark, string comment)
+        public void EditReview(DbReview review)
         {
-            var review = _dbContext.Reviews.FirstOrDefault(u => u.Id == reviewId);
+            var _review = _dbContext.Reviews.FirstOrDefault(u => u.Id == review.Id);
 
-            review.Mark = mark;
-            review.Comment = comment;
+            _review.Mark = review.Mark;
+            _review.Comment = review.Comment;
 
             _dbContext.SaveChanges();
         }

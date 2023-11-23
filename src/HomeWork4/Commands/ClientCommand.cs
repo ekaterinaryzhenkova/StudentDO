@@ -1,11 +1,11 @@
 ﻿using Commands.Interfaces;
 using DbModels;
-using Data.Interfaces;
 using Requests.Request;
-using Data.Mappers;
-using Data.Validators;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
+using Data.Mappers.Interfaces;
+using Data.Repositories.Interfaces;
+using Data.Validators;
 
 namespace Commands
 {
@@ -13,21 +13,21 @@ namespace Commands
     {
         private readonly IClientRepository _clientRepository;
         private readonly IClientMapper _clientMapper;
-        private readonly IClientRequestValidator _createClientRequestValidator;
+        private readonly IClientRequestValidator _clientRequestValidator;
 
         public ClientCommand(
             IClientRepository clientRepository,
             IClientMapper clientMapper,
-            IClientRequestValidator createClientRequestValidator)
+            IClientRequestValidator clientRequestValidator)
         {
             _clientRepository = clientRepository;
             _clientMapper = clientMapper;
-            _createClientRequestValidator = createClientRequestValidator;
+            _clientRequestValidator = clientRequestValidator;
         }
 
         public IActionResult CreateClient(ClientRequest request)
         {
-            ValidationResult validationResult = _createClientRequestValidator.Validate(request);
+            ValidationResult validationResult = _clientRequestValidator.Validate(request);
 
             if (!validationResult.IsValid)
             {
@@ -44,7 +44,7 @@ namespace Commands
         {
             _clientRepository.DeleteClient(id);
 
-            return new OkObjectResult(true);
+            return new OkResult();
         }
 
         public IActionResult GetClient(Guid id)
@@ -61,7 +61,12 @@ namespace Commands
 
         public IActionResult GetClients()
         {
-            List<DbClient> _clients = _clientRepository.GetClients();
+            List<DbClient>? _clients = _clientRepository.GetClients();
+
+            if (_clients is null)
+            {
+                return new NotFoundResult();
+            }
 
             return new OkObjectResult(_clients);
         }
@@ -75,7 +80,7 @@ namespace Commands
                 return new NotFoundResult();
             }
 
-            ValidationResult validationResult = _createClientRequestValidator.Validate(request);
+            ValidationResult validationResult = _clientRequestValidator.Validate(request);
 
             if (!validationResult.IsValid)
             {

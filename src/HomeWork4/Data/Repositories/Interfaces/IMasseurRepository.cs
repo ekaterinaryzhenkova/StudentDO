@@ -1,6 +1,6 @@
 ﻿using DbModels;
 
-namespace Data.Interfaces
+namespace Data.Repositories.Interfaces
 {
     public interface IMasseurRepository
     {

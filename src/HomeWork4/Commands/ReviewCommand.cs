@@ -1,60 +1,97 @@
-﻿using Data.Repositories;
+﻿using Commands.Interfaces;
+using Data.Mappers.Interfaces;
+using Data.Repositories.Interfaces;
+using Data.Validators.Interfaces;
 using DbModels;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
+using Requests.Request;
 
 namespace CLient
 {
-    public class ReviewCommand
+    public class ReviewCommand: IReviewCommand
     {
-        ReviewRepository _reviewRepository = new();
+        private readonly IReviewRepository _reviewRepository;
+        private readonly IReviewMapper _reviewMapper;
+        private readonly IReviewRequestValidator _reviewRequestValidator;
 
-        public void AddReview(Guid clientId, Guid masseurId, int mark, string comment)
+        public ReviewCommand(
+            IReviewRepository reviewRepository,
+            IReviewMapper reviewMapper,
+            IReviewRequestValidator reviewRequestValidator)
         {
-            var Review = new DbReview
+            _reviewRepository = reviewRepository;
+            _reviewMapper = reviewMapper;
+            _reviewRequestValidator = reviewRequestValidator;
+        }
+
+        public IActionResult CreateReview(ReviewRequest request)
+        {
+            ValidationResult validationResult = _reviewRequestValidator.Validate(request);
+
+            if (!validationResult.IsValid)
             {
-                Id = Guid.NewGuid(),
-                ClientId = clientId,
-                MasseurId = masseurId,
-                Mark = mark,
-                Comment = comment
-            };
-
-            _reviewRepository.CreateReview(Review);
-        }
-
-        public void RemoveReview(Guid id)
-        {
-            _reviewRepository.DeleteReview(id);
-        }
-
-        public string GetReview(Guid id)
-        {
-            DbReview dbReview = _reviewRepository.GetReview(id);
-
-            string strReview = $"{dbReview.Id} - {dbReview.MasseurId} - {dbReview.ClientId} - {dbReview.Mark} - {dbReview.Comment}";
-
-            Console.WriteLine(strReview);
-
-            return strReview;
-        }
-
-        public List<string> GetReviews()
-        {
-            List<string> _strReviews = new();
-
-            List<DbReview> _reviews = _reviewRepository.GetReviews();
-
-            foreach (DbReview review in _reviews)
-            {
-                Console.WriteLine($"{review.Id} - {review.MasseurId} - {review.ClientId} - {review.Mark} - {review.Comment}");
-                _strReviews.Add($"{review.Id} - {review.MasseurId} - {review.ClientId} - {review.Mark} - {review.Comment}");
+                return new BadRequestObjectResult(validationResult.Errors);
             }
 
-            return _strReviews;
+            DbReview review = _reviewMapper.Map(request);
+            _reviewRepository.CreateReview(review);
+
+            return new OkObjectResult(review.Id);
         }
 
-        public void UpdateReview(Guid id, int mark, string comment)
+        public IActionResult DeleteReview(Guid id)
         {
-            _reviewRepository.EditReview(id, mark, comment);
+            _reviewRepository.DeleteReview(id);
+
+            return new OkResult();
+        }
+
+        public IActionResult GetReview(Guid id)
+        {
+            DbReview? dbReview = _reviewRepository.GetReview(id);
+
+            if (dbReview is null)
+            {
+                return new NotFoundResult();
+            }
+
+            return new OkObjectResult(dbReview);
+        }
+
+        public IActionResult GetReviews()
+        {
+            List<DbReview>? _reviews = _reviewRepository.GetReviews();
+
+            if (_reviews is null)
+            {
+                return new NotFoundResult();
+            }
+
+            return new OkObjectResult(_reviews);
+        }
+
+        public IActionResult UpdateReview(ReviewRequest request, Guid id)
+        {
+            DbReview? dbReview = _reviewRepository.GetReview(id);
+
+            if (dbReview is null)
+            {
+                return new NotFoundResult();
+            }
+
+            ValidationResult validationResult = _reviewRequestValidator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                return new BadRequestObjectResult(validationResult.Errors);
+            }
+
+            DbReview review = _reviewMapper.Map(request, id);
+
+            _reviewRepository.EditReview(review);
+
+            return new OkResult();
         }
     }
 }

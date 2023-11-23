@@ -1,4 +1,4 @@
-﻿using Data.Interfaces;
+﻿using Data.Repositories.Interfaces;
 using DbModels;
 using Microsoft.EntityFrameworkCore;
 using Provider;

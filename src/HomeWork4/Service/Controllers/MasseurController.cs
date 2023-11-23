@@ -17,7 +17,6 @@ namespace Service.Controllers
 
         [HttpPost]
         public IActionResult Create(
-        [FromServices] IMasseurCommand _masseurCommand,
         [FromBody] MasseurRequest request)
         {
             return _masseurCommand.CreateMasseur(request);
@@ -25,22 +24,19 @@ namespace Service.Controllers
 
         [HttpGet]
         public IActionResult Get(
-        [FromServices] IMasseurCommand _masseurCommand,
         [FromQuery] Guid id)
         {
             return _masseurCommand.GetMasseur(id);
         }
 
         [HttpGet("all")]
-        public IActionResult GetAll(
-            [FromServices] IMasseurCommand _masseurCommand)
+        public IActionResult GetAll()
         {
             return _masseurCommand.GetMasseurs();
         }
 
         [HttpDelete]
         public IActionResult Delete(
-        [FromServices] IMasseurCommand _masseurCommand,
         [FromQuery] Guid id)
         {
             return _masseurCommand.DeleteMasseur(id);
@@ -48,7 +44,6 @@ namespace Service.Controllers
 
         [HttpPut]
         public IActionResult Update(
-        [FromServices] IMasseurCommand _masseurCommand,
         [FromQuery] Guid id,
         [FromBody] MasseurRequest request)
         {
