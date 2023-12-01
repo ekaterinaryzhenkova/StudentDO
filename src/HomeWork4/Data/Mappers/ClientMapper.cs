@@ -6,7 +6,7 @@ namespace Data.Mappers
 {
     public class ClientMapper : IClientMapper
     {
-        DbClient IClientMapper.Map(ClientRequest request)
+        DbClient IClientMapper.Map(CreateClientRequest request)
         {
             if (request is null)
             {
@@ -21,19 +21,19 @@ namespace Data.Mappers
             };
         }
 
-        DbClient IClientMapper.Map(ClientRequest request, Guid id)
+        DbClient IClientMapper.Map(UpdateClientRequest request)
         {
-            if (id == Guid.Empty)
+            if (Guid.TryParse(request.Id, out Guid result))
             {
-                return null;
+                return new DbClient
+                {
+                    Id = result,
+                    Name = request.Name,
+                    PhoneNumber = request.PhoneNumber,
+                };
             }
 
-            return new DbClient
-            {
-                Id = id,
-                Name = request.Name,
-                PhoneNumber = request.PhoneNumber,
-            };
+            return null;
         }
     }
 }

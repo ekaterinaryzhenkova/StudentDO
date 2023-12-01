@@ -1,6 +1,10 @@
 ﻿using Commands.Interfaces;
+using Data.Request;
+using Data.Responses;
 using Microsoft.AspNetCore.Mvc;
+using RabbitClient.Publishers;
 using Requests.Request;
+using Service.Publishers;
 
 namespace Service.Controllers
 {
@@ -8,46 +12,78 @@ namespace Service.Controllers
     [ApiController]
     public class ClientController : ControllerBase
     {
-        private readonly IClientCommand _clientCommand;
+        private readonly ICreateClientPublisher _createPublish;
+        private readonly IGetClientPublisher _getPublish;
+        private readonly IDeleteClientPublisher _deletePublish;
+        private readonly IUpdateClientPublisher _updatePublish;
 
-        public ClientController(IClientCommand command)
+        public ClientController(
+            ICreateClientPublisher createPublish,
+            IGetClientPublisher getPublish,
+            IDeleteClientPublisher deletePublish,
+            IUpdateClientPublisher updatePublish)
         {
-            _clientCommand = command;
+            _createPublish = createPublish;
+            _getPublish = getPublish;
+            _deletePublish = deletePublish;
+            _updatePublish = updatePublish;
         }
 
         [HttpPost]
-        public IActionResult Create(
-        [FromBody] ClientRequest request)
+        public async Task<IActionResult> Post(
+        [FromBody] CreateClientRequest request)
         {
-            return _clientCommand.CreateClient(request);
+            CreateClientResponse response = await _createPublish.CreateClientAsync(request);
+
+            if (response.Errors is not null)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
         }
 
         [HttpGet]
-        public IActionResult Get(
-        [FromQuery] Guid id)
+        public async Task<IActionResult> Get(
+        [FromQuery] GetClientRequest request)
         {
-            return _clientCommand.GetClient(id);
-        }
+            GetClientResponse response = await _getPublish.GetClientAsync(request);
 
-        [HttpGet("all")]
-        public IActionResult GetAll()
-        {
-            return _clientCommand.GetClients();
+            if (response.Errors is not null)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
         }
 
         [HttpDelete]
-        public IActionResult Delete(
-        [FromQuery] Guid id)
+        public async Task<IActionResult> Delete(
+        [FromQuery] DeleteClientRequest request)
         {
-            return _clientCommand.DeleteClient(id);
+            DeleteClientResponse response = await _deletePublish.DeleteClientAsync(request);
+
+            if (response.Errors is not null)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
         }
 
         [HttpPut]
-        public IActionResult Update(
+        public async Task<IActionResult> Update(
         [FromQuery] Guid id,
-        [FromBody] ClientRequest request)
+        [FromBody] UpdateClientRequest request)
         {
-           return _clientCommand.UpdateClient(request, id);
+            UpdateClientResponse response = await _updatePublish.UpdateClientAsync(request, id);
+
+            if (response.Errors is not null)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
         }
     }
 }

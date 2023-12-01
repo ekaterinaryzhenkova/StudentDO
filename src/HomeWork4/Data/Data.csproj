@@ -8,12 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.8.0" />
+    <PackageReference Include="MassTransit" Version="8.1.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DbModels\DbModels.csproj" />
     <ProjectReference Include="..\Provider\Provider.csproj" />
-    <ProjectReference Include="..\Requests\Requests.csproj" />
   </ItemGroup>
 
 </Project>

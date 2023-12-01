@@ -1,12 +1,17 @@
 using CLient;
-using Commands;
+using Commands.Client;
 using Commands.Interfaces;
 using Data.Mappers;
 using Data.Mappers.Interfaces;
 using Data.Repositories;
 using Data.Repositories.Interfaces;
+using Data.Responses;
 using Data.Validators;
 using Data.Validators.Interfaces;
+using MassTransit;
+using RabbitClient.Publishers;
+using Requests.Request;
+using Service.Publishers;
 
 namespace Service
 {
@@ -20,10 +25,16 @@ namespace Service
 
             builder.Services.AddControllers();
 
-            builder.Services.AddTransient<IClientRepository, ClientRepository>();
+            builder.Services.AddTransient<ICreateClientPublisher, CreateClientMessagePublisher>();
+            builder.Services.AddTransient<IGetClientPublisher, GetClientMessagePublisher>();
+            builder.Services.AddTransient<IDeleteClientPublisher, DeleteClientMessagePublisher>();
+            builder.Services.AddTransient<IUpdateClientPublisher, UpdateClientMessagePublisher>();
+
+            builder.Services.AddScoped<IClientRepository, ClientRepository>();
             builder.Services.AddTransient<IClientCommand, ClientCommand>();
             builder.Services.AddTransient<IClientMapper, ClientMapper>();
-            builder.Services.AddTransient<IClientRequestValidator, ClientValidator>();
+            builder.Services.AddTransient<ICreateClientRequestValidator, CreateClientValidator>();
+            builder.Services.AddTransient<IUpdateClientRequestValidator, UpdateClientValidator>();
 
             builder.Services.AddTransient<IMasseurRepository, MasseurRepository>();
             builder.Services.AddTransient<IMasseurCommand, MasseurCommand>();
@@ -39,6 +50,28 @@ namespace Service
             builder.Services.AddTransient<IReviewCommand, ReviewCommand>();
             builder.Services.AddTransient<IReviewMapper, ReviewMapper>();
             builder.Services.AddTransient<IReviewRequestValidator, ReviewValidator>();
+
+            builder.Services.AddTransient<ICreateClientCommand, CreateClientCommand>();
+            builder.Services.AddTransient<IGetClientCommand, GetClientCommand>();
+            builder.Services.AddTransient<IDeleteClientCommand, DeleteClientCommand>();
+
+
+            try
+            {
+                builder.Services.AddMassTransit(x =>
+                {
+                   // x.AddConsumers(typeof(Program).Assembly);
+                    x.UsingRabbitMq((context, cfg) =>
+                    {
+                        cfg.Host("localhost");
+                        cfg.ConfigureEndpoints(context);
+                    });
+                });
+            }
+            catch (Exception)
+            {
+                throw new Exception("Failed to connect to rabbitmq");
+            }
 
             var app = builder.Build();
 

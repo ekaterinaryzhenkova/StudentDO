@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Provider;
 using Data.Repositories.Interfaces;
+using System.Net;
 
 namespace Data.Repositories
 {
@@ -14,38 +15,35 @@ namespace Data.Repositories
             return _dbContext.Clients.ToList();
         }
 
-        public DbClient GetClient(Guid clientId)
+        public async Task<DbClient> GetClientAsync(Guid clientId)
         {
-            return _dbContext.Clients
-              .AsNoTracking()
-              .Where(u => u.Id == clientId)
-              .FirstOrDefault();
+            return await _dbContext.Clients.FirstOrDefaultAsync(u => u.Id == clientId);
         }
 
-        public void CreateClient(DbClient client)
+        public async Task CreateClientAsync(DbClient client)
         {
             _dbContext.Add(client);
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void EditClient(DbClient client)
+        public async Task EditClientAsync(DbClient client)
         {
             var _client = _dbContext.Clients.FirstOrDefault(u => u.Id == client.Id);
 
             _client.Name = client.Name;
             _client.PhoneNumber = client.PhoneNumber;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteClient(Guid clientId)
+        public async Task DeleteClientAsync(Guid clientId)
         {
             var _client = _dbContext.Clients.FirstOrDefault(u => u.Id == clientId);
 
-            _dbContext.Remove(_client);
+             _dbContext.Remove(_client);
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
