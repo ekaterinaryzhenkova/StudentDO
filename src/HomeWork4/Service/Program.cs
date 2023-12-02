@@ -31,7 +31,6 @@ namespace Service
             builder.Services.AddTransient<IUpdateClientPublisher, UpdateClientMessagePublisher>();
 
             builder.Services.AddScoped<IClientRepository, ClientRepository>();
-            builder.Services.AddTransient<IClientCommand, ClientCommand>();
             builder.Services.AddTransient<IClientMapper, ClientMapper>();
             builder.Services.AddTransient<ICreateClientRequestValidator, CreateClientValidator>();
             builder.Services.AddTransient<IUpdateClientRequestValidator, UpdateClientValidator>();

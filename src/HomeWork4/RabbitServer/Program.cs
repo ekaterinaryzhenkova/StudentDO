@@ -25,7 +25,6 @@ namespace RabbitServer
             builder.Services.AddScoped<IDeleteClientCommand, DeleteClientCommand>();
             builder.Services.AddScoped<IUpdateClientCommand, UpdateClientCommand>();
             builder.Services.AddScoped<IClientRepository, ClientRepository>();
-            builder.Services.AddTransient<IClientCommand, ClientCommand>();
             builder.Services.AddTransient<IClientMapper, ClientMapper>();
             builder.Services.AddTransient<ICreateClientRequestValidator, CreateClientValidator>();
             builder.Services.AddTransient<IUpdateClientRequestValidator, UpdateClientValidator>();

@@ -28,7 +28,7 @@ namespace ServersTest
             _repository = new Mock<IClientRepository>();
             _mapper = new Mock<IClientMapper>();
 
-           /* _validator
+          /*  _validator
               .Setup(x => x.Validate(null))
               .Returns(new FluentValidation.Results.ValidationResult()
               {
@@ -40,10 +40,10 @@ namespace ServersTest
 
             _validator
               .Setup(x => x.Validate(It.IsAny<CreateClientRequest>()))
-              .Returns(new FluentValidation.Results.ValidationResult());
+              .Returns(new FluentValidation.Results.ValidationResult()); */
 
             _repository
-                 .Setup(x => x.CreateClient(It.IsAny<DbClient>()));*/
+                 .Setup(x => x.CreateClientAsync(It.IsAny<DbClient>()));
 
             _dbClient = new()
             {
@@ -52,18 +52,18 @@ namespace ServersTest
                 PhoneNumber = "89006777064",
             };
 
-            /*_mapper
+            _mapper
                 .Setup(x => x.Map(It.IsAny<CreateClientRequest>()))
                 .Returns(_dbClient);
 
             _command = new CreateClientCommand(
                 _repository.Object,
                 _mapper.Object,
-                _validator.Object);*/
+                _validator.Object);
         }
 
         [Test]
-        public async Task ReturnErrorsNotNullWhenRequestIsOk()
+        public async Task Test1()
         {
             CreateClientResponse response = new()
             {
@@ -93,13 +93,13 @@ namespace ServersTest
         }
 
         [Test]
-        public async Task ReturnErrorsEqualsNullWhenRequestIsNotOk()
+        public async Task RequestIsNullTest()
         {
             CreateClientRequest request = null;
 
             var actualResult = await _command.CreateClientAsync(request);
 
-            Assert.IsNull(actualResult.Errors);
+            Assert.IsNotNull(actualResult.Errors);
         }
     }
 }
